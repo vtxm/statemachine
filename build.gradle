@@ -1,0 +1,90 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'com.vtxsystems'
+version '0.1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+def secretsPropertiesFile = 'secrets.properties'
+def secretProps = new Properties()
+if (file(secretsPropertiesFile).exists()) {
+    file(secretsPropertiesFile).withInputStream {
+        stream -> secretProps.load(stream)
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'statemachine'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'statemachine'
+                description = 'A state machine library.'
+                url = 'http://vtxsystems.com'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'vortex'
+                        name = 'Vortex'
+                        email = 'regmoongloom@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/vtxsystems/statemachine.git'
+                    developerConnection = 'scm:git:ssh://github.com/vtxsystems/statemachine.git'
+                    url = 'https://github.com/vtxsystems/statemachine.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username secretProps.getProperty('sonatypeUsername')
+                password secretProps.getProperty('sonatypePassword')
+            }
+        }
+    }
+}
+
+secretProps.each {
+    project.setProperty(it.key, it.value)
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
