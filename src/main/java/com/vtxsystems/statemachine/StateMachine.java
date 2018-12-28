@@ -1,14 +1,17 @@
 package com.vtxsystems.statemachine;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.List;
 
 public interface StateMachine<S, E> {
-    StateMachine setInitialState(S state);
-    StateMachine addState(S state, Consumer<E> defaultProcessor);
-    StateMachine addStateChange(S state, Predicate<E> predicate, StateChange<S, E> stateChange);
-    StateMachine addOnBeginWorkCallback(Consumer<E> onBeginWork);
-    boolean lastStatesAre(S... lastStates);
-    boolean lastEventsAre(E... lastEvents);
+    enum MachineState {
+        NOT_STARTED,
+        WORKING,
+        FINISHED
+    }
+
     S process(E event);
+
+    default void processEvents(List<E> event) {
+        event.forEach(e -> process(e));
+    }
 }
