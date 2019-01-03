@@ -1,0 +1,1 @@
+Simple and minimalistic state machine library.
