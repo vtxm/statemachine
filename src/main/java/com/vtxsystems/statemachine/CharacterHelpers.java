@@ -30,7 +30,7 @@ public class CharacterHelpers {
 
     private static final char[] DIGIT_CHAR_ARR = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
     public static final Set<Character> DIGIT_CHARS = new HashSet<Character>() {{
-        for (char c : SPACE_CHAR_ARR) {
+        for (char c : DIGIT_CHAR_ARR) {
             add(c);
         }
     }};
